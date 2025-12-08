@@ -17,11 +17,11 @@ module sine_wave_generator #(
         .CLKHF(clk)
     );
 
-    // LUT output sample
+    // Array LUT output sample
     logic [7:0]  lut_index;
     logic [11:0] lut_sample;
 
-    // Instantiate LUT
+    // Instantiate LUT Array
     sine_lut #(
         .SAMPLES_PER_PERIOD(SAMPLES_PER_PERIOD)
     ) lut_inst (
