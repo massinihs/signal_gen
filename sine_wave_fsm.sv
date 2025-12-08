@@ -14,9 +14,7 @@ module sine_wave_fsm #(
     output logic spi_mosi
 );
 
-    // -------------------------------
-    // Sample tick generator (48 kHz)
-    // -------------------------------
+    // Sample tick generator (48 kHz) //
     logic [9:0] sample_counter;
     logic sample_tick;
 
@@ -35,9 +33,7 @@ module sine_wave_fsm #(
         end
     end
 
-    // -------------------------------
-    // LUT index increment
-    // -------------------------------
+    // LUT index increment //
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n)
             phase_index <= 0;
@@ -46,9 +42,7 @@ module sine_wave_fsm #(
                            ? 0 : phase_index + 1;
     end
 
-    // -------------------------------
-    // SPI state machine
-    // -------------------------------
+    // SPI state machine //
     localparam IDLE = 1'd0;
     localparam TRANSMIT = 1'd1;
 
@@ -58,10 +52,12 @@ module sine_wave_fsm #(
     logic [3:0]  spi_clk_div;
     logic start_transmission;
 
-    // MCP4822 command: 0011xxxx_xxxxxxxx
+    // MCP4822 command: 0011,{data}
     wire [15:0] dac_cmd = {4'b0011, current_sample};
 
+    // FSM //
     always @(posedge clk or negedge rst_n) begin
+        // reset values
         if (!rst_n) begin
             spi_state <= IDLE;
             spi_cs_n <= 1;
@@ -86,27 +82,27 @@ module sine_wave_fsm #(
                         spi_data <= dac_cmd;
                         bit_counter <= 15;
                         spi_cs_n <= 0;
-                        spi_state <= TRANSMIT;
+                        spi_state <= TRANSMIT; // go to TRANSMIT state
                         spi_clk_div <= 0;
                         start_transmission <= 0;
                     end
                 end
 
                 TRANSMIT: begin
+                    // SCK clock 
                     if (spi_clk_div >= SPI_DIV - 1) begin
                         spi_clk_div <= 0;
-                        spi_sck <= ~spi_sck;
-
+                        spi_sck <= ~spi_sck; 
                         if (spi_sck) begin
                             if (bit_counter == 0)
                                 spi_state <= IDLE;
                             else
-                                bit_counter <= bit_counter - 1;
+                                bit_counter <= bit_counter - 1; // shift MOSI
                         end else begin
                             spi_mosi <= spi_data[bit_counter];
                         end
                     end else begin
-                        spi_clk_div <= spi_clk_div + 1;
+                        spi_clk_div <= spi_clk_div + 1; 
                     end
                 end
 
