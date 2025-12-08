@@ -25,6 +25,7 @@ module sine_wave_generator #(
     sine_lut #(
         .SAMPLES_PER_PERIOD(SAMPLES_PER_PERIOD)
     ) lut_inst (
+        .clk(clk),
         .index(lut_index),
         .value(lut_sample)
     );
