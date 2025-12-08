@@ -1,12 +1,18 @@
 module sine_lut #(
     parameter SAMPLES_PER_PERIOD = 200
-)(
+)(  input  logic       clk,
     input  logic [7:0] index,
     output logic [11:0] value
 );
-
+	
     logic [11:0] arb_wave [0:SAMPLES_PER_PERIOD-1];
 
+    // Read Logic (Synchronous Read)
+    always @(posedge clk) begin
+        value <= arb_wave[index];
+    end
+
+    // Array of signal
     initial begin
         arb_wave = '{
             // 0–49 noise
@@ -58,7 +64,5 @@ module sine_lut #(
             12'd1383, 12'd1350, 12'd1415, 12'd1569, 12'd1791
         };
     end
-
-    assign value = arb_wave[index];
 
 endmodule
